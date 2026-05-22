@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance - HRPayroll</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; font-family: Inter, sans-serif; background: #f6f8fb; color: #111827; }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    .sidebar { background: #111d3a; color: #dbe4f3; display: flex; flex-direction: column; border-right: 1px solid #233052; }
+    .brand { padding: 28px 24px 26px; border-bottom: 1px solid #243251; }
+    .logo { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 8px; background: #2557f6; color: #fff; font-weight: 800; font-size: 22px; margin-bottom: 16px; }
+    .brand strong { display: block; color: #fff; font-size: 17px; }
+    .brand span, .user-card span, .muted { color: #93a1ba; }
+    .nav { padding: 20px 14px; display: grid; gap: 8px; }
+    .nav-title { color: #6f7d99; font-size: 11px; font-weight: 800; letter-spacing: .14em; padding: 12px 10px; }
+    .nav-item { min-height: 44px; border: 0; border-radius: 8px; background: transparent; color: #aebbd0; display: flex; align-items: center; gap: 12px; padding: 0 12px; font-weight: 600; text-align: left; text-decoration: none; }
+    .nav-item.active { background: #2557f6; color: #fff; }
+    .user-card { margin-top: auto; border-top: 1px solid #243251; padding: 22px 24px; display: flex; gap: 12px; align-items: center; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #2557f6; color: #fff; font-weight: 800; flex: 0 0 auto; }
+    .main { min-width: 0; }
+    .topbar { height: 76px; background: #fff; border-bottom: 1px solid #dbe3ef; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+    .page { padding: 34px 32px 48px; display: grid; gap: 24px; }
+    h1 { font-size: 32px; line-height: 1.1; font-weight: 800; letter-spacing: 0; }
+    h2 { font-size: 18px; font-weight: 800; }
+    .subtitle { color: #93a1ba; font-weight: 600; margin-top: 8px; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 10px; }
+    .input, .select { height: 42px; border: 1px solid #cbd6e6; border-radius: 8px; background: #fff; color: #172033; padding: 0 12px; min-width: 150px; }
+    .btn { height: 42px; border: 1px solid #cbd6e6; border-radius: 8px; background: #fff; color: #42526b; padding: 0 16px; font-weight: 700; }
+    .btn.primary { border-color: #2557f6; background: #2557f6; color: #fff; }
+    .btn.danger { border-color: #ef4444; color: #ef4444; }
+    .grid { display: grid; grid-template-columns: minmax(320px, 1fr) minmax(320px, 1fr); gap: 24px; }
+    .panel { background: #fff; border: 1px solid #dbe3ef; border-radius: 8px; box-shadow: 0 4px 14px rgba(15, 23, 42, .08); overflow: hidden; }
+    .panel-head { min-height: 68px; padding: 20px 26px; border-bottom: 1px solid #dbe3ef; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .panel-body { padding: 26px; }
+    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .stat { min-height: 104px; border-radius: 8px; display: grid; place-items: center; gap: 4px; font-weight: 700; }
+    .stat strong { font-size: 34px; line-height: 1; }
+    .present { background: #e8fbf2; color: #047857; }
+    .absent { background: #fff0f0; color: #dc2626; }
+    .late { background: #fff8e7; color: #d97706; }
+    .leave { background: #edf2ff; color: #2557f6; }
+    .bar { height: 8px; background: #e5eaf2; border-radius: 999px; overflow: hidden; margin-top: 12px; }
+    .bar span { display: block; height: 100%; background: #2557f6; width: 0; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; }
+    th, td { padding: 16px 20px; border-bottom: 1px solid #dbe3ef; text-align: left; white-space: nowrap; }
+    th { color: #8ea0ba; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+    td { font-weight: 500; }
+    tr:last-child td { border-bottom: 0; }
+    .employee { display: flex; align-items: center; gap: 12px; }
+    .mini { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; background: #4f46e5; color: #fff; font-size: 13px; font-weight: 800; }
+    .pill { display: inline-flex; min-width: 42px; height: 26px; align-items: center; justify-content: center; border-radius: 999px; background: #e8fbf2; color: #047857; font-weight: 800; }
+    .rate-good { color: #059669; font-weight: 800; }
+    .rate-warn { color: #d97706; font-weight: 800; }
+    .mark-list { display: grid; gap: 12px; max-height: 460px; overflow: auto; padding-right: 4px; }
+    .mark-row { display: grid; grid-template-columns: 1fr 160px; gap: 12px; align-items: center; border: 1px solid #e3e9f2; border-radius: 8px; padding: 12px; }
+    .alert { display: none; border-radius: 8px; padding: 12px 14px; font-weight: 700; }
+    .alert.success { display: block; background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .alert.error { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .empty { color: #64748b; padding: 20px; text-align: center; }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .topbar { padding: 0 18px; }
+      .page { padding: 24px 18px 36px; }
+      .grid { grid-template-columns: 1fr; }
+      .stat-grid { grid-template-columns: 1fr; }
+      .mark-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-role="admin">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">H</div>
+        <strong>HRPayroll</strong>
+        <span>Management System</span>
+      </div>
+      <nav class="nav" aria-label="Admin navigation">
+        <div class="nav-title">OVERVIEW</div>
+        <a class="nav-item" href="/admin/dashboard.html">Dashboard</a>
+        <div class="nav-title">HR MANAGEMENT</div>
+        <a class="nav-item active" href="/admin/attendanceTracking.html">Attendance</a>
+        <a class="nav-item" href="/admin/leaveRequest.html">Leave Requests</a>
+        <div class="nav-title">PAYROLL</div>
+        <a class="nav-item" href="/admin/dashboard.html">Payroll</a>
+      </nav>
+      <div class="user-card">
+        <div class="avatar" id="userInitial">A</div>
+        <div>
+          <strong id="userName">-</strong>
+          <span id="userRole">-</span>
+        </div>
+      </div>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h2>Attendance</h2>
+          <p class="muted">Track daily attendance</p>
+        </div>
+        <button class="btn danger" id="logoutButton" type="button">Sign Out</button>
+      </header>
+
+      <section class="page">
+        <div class="toolbar">
+          <div>
+            <h1>Attendance</h1>
+            <p class="subtitle">Record and manage daily attendance</p>
+          </div>
+          <div class="controls">
+            <input class="input" id="attendanceDate" type="date" />
+            <input class="input" id="summaryMonth" type="month" />
+            <select class="select" id="departmentFilter"><option value="">All departments</option></select>
+            <button class="btn" id="exportAttendance" type="button">Export Report</button>
+            <button class="btn primary" id="saveAttendance" type="button">Save Attendance</button>
+          </div>
+        </div>
+
+        <div id="attendanceAlert" class="alert"></div>
+
+        <div class="grid">
+          <section class="panel">
+            <div class="panel-head"><h2 id="calendarTitle">Calendar View</h2></div>
+            <div class="panel-body">
+              <div class="mark-list" id="markList"></div>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head"><h2 id="todayTitle">Today</h2></div>
+            <div class="panel-body">
+              <div class="stat-grid">
+                <div class="stat present"><strong id="presentCount">0</strong><span>Present</span></div>
+                <div class="stat absent"><strong id="absentCount">0</strong><span>Absent</span></div>
+                <div class="stat late"><strong id="lateCount">0</strong><span>Late</span></div>
+                <div class="stat leave"><strong id="leaveCount">0</strong><span>On Leave</span></div>
+              </div>
+              <p class="subtitle" style="margin-top:22px">Attendance Rate</p>
+              <div class="bar"><span id="attendanceBar"></span></div>
+              <p class="rate-good" id="attendanceRate" style="text-align:right;margin-top:8px">0%</p>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-head"><h2 id="summaryTitle">All Employee Attendance</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Department</th>
+                  <th>Days Present</th>
+                  <th>Absent</th>
+                  <th>Late</th>
+                  <th>On Leave</th>
+                  <th>Rate</th>
+                </tr>
+              </thead>
+              <tbody id="summaryBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+  <script src="/js/dashboard.js"></script>
+</body>
+</html>

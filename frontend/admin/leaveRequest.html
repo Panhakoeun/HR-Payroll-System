@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leave Requests - HRPayroll</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { min-height: 100vh; font-family: Inter, sans-serif; background: #f6f8fb; color: #111827; }
+    button, a { font: inherit; }
+    .app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+    .sidebar { background: #111d3a; color: #dbe4f3; display: flex; flex-direction: column; border-right: 1px solid #233052; }
+    .brand { padding: 28px 24px 26px; border-bottom: 1px solid #243251; }
+    .logo { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 8px; background: #2557f6; color: #fff; font-weight: 800; font-size: 22px; margin-bottom: 16px; }
+    .brand strong { display: block; color: #fff; font-size: 17px; }
+    .brand span, .muted, .user-card span { color: #93a1ba; }
+    .nav { padding: 20px 14px; display: grid; gap: 8px; }
+    .nav-title { color: #6f7d99; font-size: 11px; font-weight: 800; letter-spacing: .14em; padding: 12px 10px; }
+    .nav-item { min-height: 44px; border: 0; border-radius: 8px; background: transparent; color: #aebbd0; display: flex; align-items: center; gap: 12px; padding: 0 12px; font-weight: 700; text-decoration: none; }
+    .nav-item.active { background: #2557f6; color: #fff; }
+    .user-card { margin-top: auto; border-top: 1px solid #243251; padding: 22px 24px; display: flex; gap: 12px; align-items: center; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: #2557f6; color: #fff; font-weight: 800; }
+    .topbar { height: 76px; background: #fff; border-bottom: 1px solid #dbe3ef; display: flex; align-items: center; justify-content: space-between; padding: 0 32px; }
+    .page { padding: 34px 32px 48px; display: grid; gap: 24px; }
+    h1 { font-size: 32px; line-height: 1.1; font-weight: 800; }
+    h2 { font-size: 18px; font-weight: 800; }
+    .subtitle { color: #93a1ba; font-weight: 600; margin-top: 8px; }
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; }
+    .filter { height: 42px; border: 1px solid #cbd6e6; border-radius: 8px; background: #fff; color: #42526b; padding: 0 16px; font-weight: 800; cursor: pointer; }
+    .filter.active { border-color: #2557f6; background: #2557f6; color: #fff; }
+    .btn { height: 40px; border: 1px solid #cbd6e6; border-radius: 8px; background: #fff; color: #42526b; padding: 0 14px; font-weight: 800; cursor: pointer; }
+    .btn.approve { border-color: #bbf7d0; background: #ecfdf5; color: #047857; }
+    .btn.danger { border-color: #fecaca; color: #dc2626; background: #fff5f5; }
+    .panel { background: #fff; border: 1px solid #dbe3ef; border-radius: 8px; box-shadow: 0 4px 14px rgba(15, 23, 42, .08); overflow: hidden; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; min-width: 1120px; }
+    th, td { padding: 16px 20px; border-bottom: 1px solid #dbe3ef; text-align: left; vertical-align: middle; }
+    th { color: #8ea0ba; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+    td { font-weight: 500; }
+    .status { display: inline-flex; height: 28px; align-items: center; border-radius: 999px; padding: 0 12px; font-weight: 800; }
+    .status.pending { background: #fff8e7; color: #b45309; }
+    .status.approved { background: #e8fbf2; color: #047857; }
+    .status.rejected { background: #fff0f0; color: #dc2626; }
+    .status.cancelled { background: #edf2ff; color: #2557f6; }
+    .actions { display: flex; gap: 8px; }
+    .alert { display: none; border-radius: 8px; padding: 12px 14px; font-weight: 800; }
+    .alert.success { display: block; background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .alert.error { display: block; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+    .empty { color: #64748b; padding: 20px; text-align: center; }
+    @media (max-width: 900px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } .topbar, .page { padding-left: 18px; padding-right: 18px; } }
+  </style>
+</head>
+<body data-role="admin">
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">H</div>
+        <strong>HRPayroll</strong>
+        <span>Management System</span>
+      </div>
+      <nav class="nav" aria-label="Admin navigation">
+        <div class="nav-title">OVERVIEW</div>
+        <a class="nav-item" href="/admin/dashboard.html">Dashboard</a>
+        <div class="nav-title">HR MANAGEMENT</div>
+        <a class="nav-item" href="/admin/attendanceTracking.html">Attendance</a>
+        <a class="nav-item active" href="/admin/leaveRequest.html">Leave Requests</a>
+      </nav>
+      <div class="user-card">
+        <div class="avatar" id="userInitial">A</div>
+        <div>
+          <strong id="userName">-</strong>
+          <span id="userRole">-</span>
+        </div>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <div>
+          <h2>Leave Requests</h2>
+          <p class="muted">Review staff leave</p>
+        </div>
+        <button class="btn danger" id="logoutButton" type="button">Sign Out</button>
+      </header>
+      <section class="page">
+        <div>
+          <h1>Leave Requests</h1>
+          <p class="subtitle">Review and manage all staff leave applications</p>
+        </div>
+        <div id="leaveAlert" class="alert"></div>
+        <div class="filters">
+          <button class="filter active" data-status-filter="" type="button">All (<span id="allCount">0</span>)</button>
+          <button class="filter" data-status-filter="pending" type="button">Pending (<span id="pendingCount">0</span>)</button>
+          <button class="filter" data-status-filter="approved" type="button">Approved (<span id="approvedCount">0</span>)</button>
+          <button class="filter" data-status-filter="rejected" type="button">Rejected (<span id="rejectedCount">0</span>)</button>
+        </div>
+        <section class="panel">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Employee</th>
+                  <th>Type</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Days</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="adminLeaveBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+  <script src="/js/leaveRequest.js"></script>
+</body>
+</html>

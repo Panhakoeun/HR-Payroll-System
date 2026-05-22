@@ -3,6 +3,8 @@ import cors from "cors";
 import path from "path";
 import { envConfig } from "./config/env";
 import { AuthRoutes } from "./routes/AuthRoutes";
+import { AttendanceRoutes } from "./routes/AttendanceRoutes";
+import { LeaveRequestRoutes } from "./routes/LeaveRequestRoutes";
 
 class App {
   private readonly app: ExpressApplication;
@@ -29,8 +31,9 @@ class App {
   }
 
   private configureRoutes(): void {
-    const authRoutes = new AuthRoutes();
-    this.app.use("/api/auth", authRoutes.router);
+    AuthRoutes.register(this.app);
+    AttendanceRoutes.register(this.app);
+    LeaveRequestRoutes.register(this.app);
   }
 
   private configureFrontendFallback(): void {
