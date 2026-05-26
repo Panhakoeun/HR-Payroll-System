@@ -1,93 +1,241 @@
+/**
+ * Employee Controller
+ * Handles HTTP requests for Employee entity
+ */
+
 import { Request, Response } from "express";
-import {
-  CreateEmployeeRequest,
-  UpdateEmployeeRequest,
-} from "../models/Employee";
 import { EmployeeService } from "../services/EmployeeService";
-import { EmployeeValidation } from "../validations/EmployeeValidation";
-import { BaseController } from "./BaseController";
+import { CreateEmployeeRequest, UpdateEmployeeRequest } from "../models/Employee";
+import { HttpResponse } from "../utils/HttpResponse";
 
-export class EmployeeController extends BaseController {
-  constructor(private readonly employeeService = new EmployeeService()) {
-    super();
-  }
+export class EmployeeController {
+  constructor(private readonly employeeService = new EmployeeService()) {}
 
-  public async list(req: Request, res: Response): Promise<void> {
-    await this.handle(res, "List employees error", async () => {
-      res.json({ employees: await this.employeeService.listEmployees() });
-    });
-  }
+  /**
+   * GET /api/employees/:id
+   * Get employee by ID
+   */
+  public async getEmployee(req: Request, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
 
-  public async create(req: Request, res: Response): Promise<void> {
-    const error = EmployeeValidation.validateCreate(
-      req.body as Partial<CreateEmployeeRequest>,
-    );
-    if (error) {
-      this.sendError(res, 400, error);
-      return;
+      if (!id || isNaN(id)) {
+        HttpResponse.error(res, 400, "Invalid employee ID");
+        return;
+      }
+
+      const employee = await this.employeeService.getEmployeeById(id);
+
+      if (!employee) {
+        HttpResponse.error(res, 404, "Employee not found");
+        return;
+      }
+
+      res.json({ employee });
+    } catch (err) {
+      console.error("Get employee error:", err);
+      HttpResponse.error(res, 500, "Server error");
     }
+  }
 
-    await this.handle(res, "Create employee error", async () => {
-      const result = await this.employeeService.createEmployee(
-        req.body as CreateEmployeeRequest,
+  /**
+   * GET /api/employees
+   * List all employees with pagination and filters
+   */
+  public async listEmployees(req: Request, res: Response): Promise<void> {
+    try {
+      const limit = Number(req.query.limit) || 50;
+      const offset = Number(req.query.offset) || 0;
+      const department = req.query.department as string | undefined;
+      const status = req.query.status as string | undefined;
+
+      const result = await this.employeeService.listEmployees({
+        department,
+        status,
+        limit,
+        offset,
+      });
+
+      res.json({
+        employees: result.employees,
+        pagination: {
+          total: result.total,
+          limit,
+          offset,
+          pages: Math.ceil(result.total / limit),
+        },
+      });
+    } catch (err) {
+      console.error("List employees error:", err);
+      HttpResponse.error(res, 500, "Server error");
+    }
+  }
+
+  /**
+   * POST /api/employees
+   * Create new employee
+   */
+  public async createEmployee(req: Request, res: Response): Promise<void> {
+    try {
+      const data = req.body as CreateEmployeeRequest;
+
+      if (
+        !data.first_name ||
+        !data.last_name ||
+        !data.email ||
+        !data.position ||
+        !data.department
+      ) {
+        HttpResponse.error(res, 400, "Missing required fields");
+        return;
+      }
+
+      if (!data.salary || data.salary <= 0) {
+        HttpResponse.error(res, 400, "Invalid salary");
+        return;
+      }
+
+      if (!data.joining_date) {
+        HttpResponse.error(res, 400, "Joining date is required");
+        return;
+      }
+
+      if (!this.isValidEmail(data.email)) {
+        HttpResponse.error(res, 400, "Invalid email format");
+        return;
+      }
+
+      const employee = await this.employeeService.createEmployee(data);
+      res.status(201).json({ employee });
+    } catch (err) {
+      if (err instanceof Error && err.message.includes("email already exists")) {
+        HttpResponse.error(res, 409, err.message);
+        return;
+      }
+      console.error("Create employee error:", err);
+      HttpResponse.error(res, 500, "Server error");
+    }
+  }
+
+  /**
+   * PUT /api/employees/:id
+   * Update employee
+   */
+  public async updateEmployee(req: Request, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+
+      if (!id || isNaN(id)) {
+        HttpResponse.error(res, 400, "Invalid employee ID");
+        return;
+      }
+
+      const data = req.body as UpdateEmployeeRequest;
+
+      if (data.email && !this.isValidEmail(data.email)) {
+        HttpResponse.error(res, 400, "Invalid email format");
+        return;
+      }
+
+      if (data.salary !== undefined && data.salary <= 0) {
+        HttpResponse.error(res, 400, "Invalid salary");
+        return;
+      }
+
+      const employee = await this.employeeService.updateEmployee(id, data);
+      res.json({ employee });
+    } catch (err) {
+      if (err instanceof Error && err.message === "Employee not found") {
+        HttpResponse.error(res, 404, "Employee not found");
+        return;
+      }
+      if (err instanceof Error && err.message.includes("Email already in use")) {
+        HttpResponse.error(res, 409, err.message);
+        return;
+      }
+      console.error("Update employee error:", err);
+      HttpResponse.error(res, 500, "Server error");
+    }
+  }
+
+  /**
+   * DELETE /api/employees/:id
+   * Delete employee (soft delete)
+   */
+  public async deleteEmployee(req: Request, res: Response): Promise<void> {
+    try {
+      const id = Number(req.params.id);
+
+      if (!id || isNaN(id)) {
+        HttpResponse.error(res, 400, "Invalid employee ID");
+        return;
+      }
+
+      await this.employeeService.deleteEmployee(id);
+      res.json({ message: "Employee deleted successfully" });
+    } catch (err) {
+      if (err instanceof Error && err.message === "Employee not found") {
+        HttpResponse.error(res, 404, "Employee not found");
+        return;
+      }
+      console.error("Delete employee error:", err);
+      HttpResponse.error(res, 500, "Server error");
+    }
+  }
+
+  /**
+   * GET /api/employees/department/:department
+   * Get employees by department
+   */
+  public async getByDepartment(req: Request, res: Response): Promise<void> {
+    try {
+      const department = req.params.department as string;
+      const limit = Number(req.query.limit) || 50;
+      const offset = Number(req.query.offset) || 0;
+
+      if (!department) {
+        HttpResponse.error(res, 400, "Department is required");
+        return;
+      }
+
+      const result = await this.employeeService.getEmployeesByDepartment(
+        department,
+        limit,
+        offset,
       );
-      if (result === "email_exists") {
-        this.sendError(res, 409, "A staff employee with this email already exists");
-        return;
-      }
 
-      res.status(201).json({ employee: result });
-    });
+      res.json({
+        employees: result.employees,
+        pagination: {
+          total: result.total,
+          limit,
+          offset,
+          pages: Math.ceil(result.total / limit),
+        },
+      });
+    } catch (err) {
+      console.error("Get by department error:", err);
+      HttpResponse.error(res, 500, "Server error");
+    }
   }
 
-  public async update(req: Request, res: Response): Promise<void> {
-    const id = this.parsePositiveId(req.params.id);
-    if (!id) {
-      this.sendError(res, 400, "Employee id must be valid");
-      return;
+  /**
+   * GET /api/employees/stats/count
+   * Get total active employees count
+   */
+  public async getActiveCount(req: Request, res: Response): Promise<void> {
+    try {
+      const count = await this.employeeService.getActiveEmployeesCount();
+      res.json({ count });
+    } catch (err) {
+      console.error("Get active count error:", err);
+      HttpResponse.error(res, 500, "Server error");
     }
-
-    const error = EmployeeValidation.validateUpdate(
-      req.body as Partial<UpdateEmployeeRequest>,
-    );
-    if (error) {
-      this.sendError(res, 400, error);
-      return;
-    }
-
-    await this.handle(res, "Update employee error", async () => {
-      const result = await this.employeeService.updateEmployee(
-        id,
-        req.body as UpdateEmployeeRequest,
-      );
-      if (result === "not_found") {
-        this.sendError(res, 404, "Staff employee not found");
-        return;
-      }
-      if (result === "email_exists") {
-        this.sendError(res, 409, "A user with this email already exists");
-        return;
-      }
-
-      res.json({ employee: result });
-    });
   }
 
-  public async delete(req: Request, res: Response): Promise<void> {
-    const id = this.parsePositiveId(req.params.id);
-    if (!id) {
-      this.sendError(res, 400, "Employee id must be valid");
-      return;
-    }
-
-    await this.handle(res, "Delete employee error", async () => {
-      const deleted = await this.employeeService.deleteEmployee(id);
-      if (!deleted) {
-        this.sendError(res, 404, "Staff employee not found");
-        return;
-      }
-
-      res.status(204).send();
-    });
+  private isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 }
+
