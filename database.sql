@@ -6,13 +6,14 @@ USE hr_payroll_db;
 
 -- ========== Users Table ==========
 CREATE TABLE IF NOT EXISTS users (
-  id         INT AUTO_INCREMENT PRIMARY KEY,
-  name       VARCHAR(100)        NOT NULL,
-  email      VARCHAR(150) UNIQUE NOT NULL,
-  password   VARCHAR(255)        NOT NULL,
-  role       ENUM('admin','staff') NOT NULL DEFAULT 'staff',
-  created_at TIMESTAMP           DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP           DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  id             INT AUTO_INCREMENT PRIMARY KEY,
+  name           VARCHAR(100)        NOT NULL,
+  email          VARCHAR(150) UNIQUE NOT NULL,
+  password       VARCHAR(255)        NOT NULL,
+  login_password VARCHAR(255)        NULL,
+  role           ENUM('admin','staff') NOT NULL DEFAULT 'staff',
+  created_at     TIMESTAMP           DEFAULT CURRENT_TIMESTAMP,
+  updated_at     TIMESTAMP           DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========== Employees Table ==========
@@ -46,15 +47,15 @@ CREATE TABLE IF NOT EXISTS employees (
 
 -- ========== Attendance Table ==========
 CREATE TABLE IF NOT EXISTS attendance (
-  id            INT AUTO_INCREMENT PRIMARY KEY,
-  employee_id   INT NOT NULL,
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id     INT NOT NULL,
   attendance_date DATE NOT NULL,
-  check_in_time TIME,
-  check_out_time TIME,
-  status        ENUM('present', 'absent', 'late', 'half-day') DEFAULT 'absent',
-  remarks       TEXT,
-  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  check_in_time   TIME,
+  check_out_time  TIME,
+  status          ENUM('present', 'absent', 'late', 'half-day') DEFAULT 'absent',
+  remarks         TEXT,
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
   UNIQUE KEY unique_employee_date (employee_id, attendance_date),
   INDEX idx_date (attendance_date),
@@ -63,37 +64,37 @@ CREATE TABLE IF NOT EXISTS attendance (
 
 -- ========== Payroll Settings Table ==========
 CREATE TABLE IF NOT EXISTS payroll_settings (
-  id                    INT AUTO_INCREMENT PRIMARY KEY,
-  employee_id           INT NOT NULL,
-  base_salary           DECIMAL(12, 2) NOT NULL,
-  housing_allowance     DECIMAL(12, 2) DEFAULT 0,
-  transport_allowance   DECIMAL(12, 2) DEFAULT 0,
-  other_allowances      DECIMAL(12, 2) DEFAULT 0,
-  deduction_per_absent_day   DECIMAL(12, 2) DEFAULT 0,
-  deduction_per_late_day     DECIMAL(12, 2) DEFAULT 0,
-  deduction_per_half_day     DECIMAL(12, 2) DEFAULT 0,
-  created_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at            TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  id                       INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id              INT NOT NULL,
+  base_salary              DECIMAL(12, 2) NOT NULL,
+  housing_allowance        DECIMAL(12, 2) DEFAULT 0,
+  transport_allowance      DECIMAL(12, 2) DEFAULT 0,
+  other_allowances         DECIMAL(12, 2) DEFAULT 0,
+  deduction_per_absent_day DECIMAL(12, 2) DEFAULT 0,
+  deduction_per_late_day   DECIMAL(12, 2) DEFAULT 0,
+  deduction_per_half_day   DECIMAL(12, 2) DEFAULT 0,
+  created_at               TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at               TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
   UNIQUE KEY unique_employee_settings (employee_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ========== Payroll Table ==========
 CREATE TABLE IF NOT EXISTS payroll (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  employee_id     INT NOT NULL,
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id      INT NOT NULL,
   pay_period_start DATE NOT NULL,
-  pay_period_end  DATE NOT NULL,
-  basic_salary    DECIMAL(12, 2) NOT NULL,
-  allowances      DECIMAL(12, 2) DEFAULT 0,
-  deductions      DECIMAL(12, 2) DEFAULT 0,
-  gross_salary    DECIMAL(12, 2) NOT NULL,
-  net_salary      DECIMAL(12, 2) NOT NULL,
-  status          ENUM('pending', 'approved', 'processed', 'paid') DEFAULT 'pending',
-  payment_date    DATE,
-  remarks         TEXT,
-  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  pay_period_end   DATE NOT NULL,
+  basic_salary     DECIMAL(12, 2) NOT NULL,
+  allowances       DECIMAL(12, 2) DEFAULT 0,
+  deductions       DECIMAL(12, 2) DEFAULT 0,
+  gross_salary     DECIMAL(12, 2) NOT NULL,
+  net_salary       DECIMAL(12, 2) NOT NULL,
+  status           ENUM('pending', 'approved', 'processed', 'paid') DEFAULT 'pending',
+  payment_date     DATE,
+  remarks          TEXT,
+  created_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
   UNIQUE KEY unique_employee_period (employee_id, pay_period_start, pay_period_end),
   INDEX idx_status (status),
@@ -102,19 +103,19 @@ CREATE TABLE IF NOT EXISTS payroll (
 
 -- ========== Payslips Table ==========
 CREATE TABLE IF NOT EXISTS payslips (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  payroll_id      INT NOT NULL,
-  employee_id     INT NOT NULL,
+  id               INT AUTO_INCREMENT PRIMARY KEY,
+  payroll_id       INT NOT NULL,
+  employee_id      INT NOT NULL,
   pay_period_start DATE NOT NULL,
-  pay_period_end  DATE NOT NULL,
-  basic_salary    DECIMAL(12, 2) NOT NULL,
-  allowances      DECIMAL(12, 2) DEFAULT 0,
-  deductions      DECIMAL(12, 2) DEFAULT 0,
-  gross_salary    DECIMAL(12, 2) NOT NULL,
-  net_salary      DECIMAL(12, 2) NOT NULL,
-  status          ENUM('draft', 'generated', 'sent', 'viewed') DEFAULT 'draft',
-  generated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  pay_period_end   DATE NOT NULL,
+  basic_salary     DECIMAL(12, 2) NOT NULL,
+  allowances       DECIMAL(12, 2) DEFAULT 0,
+  deductions       DECIMAL(12, 2) DEFAULT 0,
+  gross_salary     DECIMAL(12, 2) NOT NULL,
+  net_salary       DECIMAL(12, 2) NOT NULL,
+  status           ENUM('draft', 'generated', 'sent', 'viewed') DEFAULT 'draft',
+  generated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (payroll_id) REFERENCES payroll(id) ON DELETE CASCADE,
   FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
   INDEX idx_employee (employee_id),
@@ -123,17 +124,17 @@ CREATE TABLE IF NOT EXISTS payslips (
 
 -- ========== Leave Requests Table ==========
 CREATE TABLE IF NOT EXISTS leave_requests (
-  id              INT AUTO_INCREMENT PRIMARY KEY,
-  employee_id     INT NOT NULL,
-  start_date      DATE NOT NULL,
-  end_date        DATE NOT NULL,
-  leave_type      ENUM('annual', 'sick', 'unpaid', 'maternity') DEFAULT 'annual',
-  reason          TEXT,
-  status          ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
-  approved_by     INT,
-  approval_date   DATETIME,
-  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  id            INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id   INT NOT NULL,
+  start_date    DATE NOT NULL,
+  end_date      DATE NOT NULL,
+  leave_type    ENUM('annual', 'sick', 'unpaid', 'maternity') DEFAULT 'annual',
+  reason        TEXT,
+  status        ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+  approved_by   INT,
+  approval_date DATETIME,
+  created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
   FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL,
   INDEX idx_employee (employee_id),
@@ -143,12 +144,13 @@ CREATE TABLE IF NOT EXISTS leave_requests (
 
 -- ========== Seed Data ==========
 -- Users: admin password = Admin@123, staff password = Staff@123 (bcrypt with saltRounds=10)
-INSERT INTO users (name, email, password, role) VALUES
-  ('Admin User',  'admin@hrpayroll.com', '$2a$10$LCsTsOacvi4HSSsa/KDFreSU1pMBS4Y2SrYNcFUW8X8ClqbMepJl2', 'admin'),
-  ('Staff User',  'staff@hrpayroll.com', '$2a$10$9jMV9gJ.2935zC.Ed.naOudF3j58m6PyT83L86zhi6DGrT9CNaZ4u', 'staff')
+INSERT INTO users (name, email, password, login_password, role) VALUES
+  ('Admin User',  'admin@hrpayroll.com', '$2a$10$LCsTsOacvi4HSSsa/KDFreSU1pMBS4Y2SrYNcFUW8X8ClqbMepJl2', NULL, 'admin'),
+  ('Staff User',  'staff@hrpayroll.com', '$2a$10$9jMV9gJ.2935zC.Ed.naOudF3j58m6PyT83L86zhi6DGrT9CNaZ4u', 'Staff@123', 'staff')
 ON DUPLICATE KEY UPDATE
   name = VALUES(name),
   password = VALUES(password),
+  login_password = VALUES(login_password),
   role = VALUES(role);
 
 -- Sample Employees
@@ -198,3 +200,4 @@ INSERT INTO payslips (payroll_id, employee_id, pay_period_start, pay_period_end,
   (2, 3, '2026-05-01', '2026-05-31', 52000.00, 5200.00, 1500.00, 57200.00, 55700.00, 'sent')
 ON DUPLICATE KEY UPDATE
   status = VALUES(status);
+

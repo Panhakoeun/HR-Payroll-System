@@ -4,6 +4,8 @@
  * Requirements: US-22 (Admin Dashboard) and US-23 (Staff Dashboard)
  */
 
+export {};
+
 type DashboardRole = "admin" | "staff";
 
 interface DashboardUser {
@@ -58,22 +60,13 @@ class DashboardPage {
     this.userRole.textContent = user.role;
     this.logoutButton.addEventListener("click", () => this.logout());
 
-    // Load dashboard based on role
     if (expectedRole === "admin") {
-      this.loadAdminDashboard();
+      void this.loadAdminDashboard();
     } else if (expectedRole === "staff") {
-      this.loadStaffDashboard();
+      void this.loadStaffDashboard();
     }
   }
 
-  /**
-   * Load Admin/HR Dashboard
-   * AC1: Dashboard shows total employees, present today, absent, and on leave
-   * AC2: Dashboard shows pending leave requests
-   * AC3: Dashboard shows total payroll for current month
-   * AC4: All numbers are calculated in real time
-   * AC5: Each summary card is clickable and takes admin to relevant section
-   */
   private async loadAdminDashboard(): Promise<void> {
     try {
       const token = this.getStoredToken();
@@ -98,19 +91,15 @@ class DashboardPage {
         throw new Error(`Failed to fetch dashboard data: ${response.statusText}`);
       }
 
-      const data = (await response.json()) as {
-        data: AdminDashboardData;
-      };
+      const data = (await response.json()) as { data: AdminDashboardData };
       this.renderAdminDashboard(data.data);
     } catch (error) {
       console.error("Error loading admin dashboard:", error);
-      this.dashboardContent.innerHTML = `<p style="color: #dc2626; text-align: center;">Failed to load dashboard. Please refresh the page.</p>`;
+      this.dashboardContent.innerHTML =
+        `<p style="color: #dc2626; text-align: center;">Failed to load dashboard. Please refresh the page.</p>`;
     }
   }
 
-  /**
-   * Render Admin Dashboard HTML
-   */
   private renderAdminDashboard(data: AdminDashboardData): void {
     const dashboardHTML = `
       <div class="dashboard-grid">
@@ -176,14 +165,6 @@ class DashboardPage {
     this.dashboardContent.innerHTML = dashboardHTML;
   }
 
-  /**
-   * Load Staff Dashboard
-   * AC1: Shows staff attendance summary for current month
-   * AC2: Shows remaining leave days for current year
-   * AC3: Shows status of latest payslip
-   * AC4: Shows pending leave requests
-   * AC5: All info is specific to logged-in staff member
-   */
   private async loadStaffDashboard(): Promise<void> {
     try {
       const token = this.getStoredToken();
@@ -208,19 +189,15 @@ class DashboardPage {
         throw new Error(`Failed to fetch dashboard data: ${response.statusText}`);
       }
 
-      const data = (await response.json()) as {
-        data: StaffDashboardData;
-      };
+      const data = (await response.json()) as { data: StaffDashboardData };
       this.renderStaffDashboard(data.data);
     } catch (error) {
       console.error("Error loading staff dashboard:", error);
-      this.dashboardContent.innerHTML = `<p style="color: #dc2626; text-align: center;">Failed to load dashboard. Please refresh the page.</p>`;
+      this.dashboardContent.innerHTML =
+        `<p style="color: #dc2626; text-align: center;">Failed to load dashboard. Please refresh the page.</p>`;
     }
   }
 
-  /**
-   * Render Staff Dashboard HTML
-   */
   private renderStaffDashboard(data: StaffDashboardData): void {
     const payslipInfo = data.latestPayslip
       ? `<span class="payslip-badge ${data.latestPayslip.status}">${data.latestPayslip.status}</span>
@@ -236,7 +213,7 @@ class DashboardPage {
         <div class="summary-card" onclick="window.location.href='/staff/attendance.html'">
           <div class="card-header">
             <h3>Attendance (This Month)</h3>
-            <span class="card-icon">📅</span>
+            <span class="card-icon">🗓</span>
           </div>
           <div class="attendance-summary">
             <div class="attendance-item">
@@ -287,9 +264,6 @@ class DashboardPage {
     this.dashboardContent.innerHTML = dashboardHTML;
   }
 
-  /**
-   * Get stored user from localStorage
-   */
   private getStoredUser(): DashboardUser | null {
     const userStr = localStorage.getItem("user");
     if (!userStr) return null;
@@ -300,25 +274,16 @@ class DashboardPage {
     }
   }
 
-  /**
-   * Get stored authentication token
-   */
   private getStoredToken(): string | null {
     return localStorage.getItem("token");
   }
 
-  /**
-   * Logout user
-   */
   private logout(): void {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     window.location.href = "/login.html";
   }
 
-  /**
-   * Safe element getter
-   */
   private getElement<T extends HTMLElement>(id: string): T {
     const element = document.getElementById(id);
     if (!element) {
@@ -328,8 +293,8 @@ class DashboardPage {
   }
 }
 
-// Initialize dashboard when DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
   const dashboard = new DashboardPage();
   dashboard.init();
 });
+

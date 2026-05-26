@@ -11,7 +11,10 @@ export class AuthRoutes {
   }
 
   private initializeRoutes(): void {
-    this.router.post("/login", this.authController.login.bind(this.authController));
+    this.router.post(
+      "/login",
+      this.authController.login.bind(this.authController),
+    );
     this.router.get(
       "/me",
       AuthMiddleware.verifyToken,

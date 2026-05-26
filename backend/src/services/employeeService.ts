@@ -5,13 +5,12 @@
 
 import { EmployeeRepository } from "../repositories/employeeRepositories";
 import {
-  EmployeeRecord,
   CreateEmployeeRequest,
   UpdateEmployeeRequest,
   EmployeeResponse,
   EmployeeDetailResponse,
   Employee,
-} from "../models/employee";
+} from "../models/Employee";
 
 export class EmployeeService {
   constructor(private readonly employeeRepository = new EmployeeRepository()) {}
@@ -19,7 +18,9 @@ export class EmployeeService {
   /**
    * Get employee by ID
    */
-  public async getEmployeeById(id: number): Promise<EmployeeDetailResponse | null> {
+  public async getEmployeeById(
+    id: number,
+  ): Promise<EmployeeDetailResponse | null> {
     const record = await this.employeeRepository.findById(id);
     if (!record) return null;
     return new Employee(record).toDetailResponse();
@@ -28,7 +29,9 @@ export class EmployeeService {
   /**
    * Get employee by employee_id
    */
-  public async getEmployeeByEmployeeId(employeeId: string): Promise<EmployeeDetailResponse | null> {
+  public async getEmployeeByEmployeeId(
+    employeeId: string,
+  ): Promise<EmployeeDetailResponse | null> {
     const record = await this.employeeRepository.findByEmployeeId(employeeId);
     if (!record) return null;
     return new Employee(record).toDetailResponse();
@@ -37,14 +40,12 @@ export class EmployeeService {
   /**
    * Get all employees with pagination and filters
    */
-  public async listEmployees(
-    filters?: {
-      department?: string;
-      status?: string;
-      limit?: number;
-      offset?: number;
-    },
-  ): Promise<{ employees: EmployeeResponse[]; total: number }> {
+  public async listEmployees(filters?: {
+    department?: string;
+    status?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ employees: EmployeeResponse[]; total: number }> {
     const limit = filters?.limit || 50;
     const offset = filters?.offset || 0;
 
@@ -67,17 +68,16 @@ export class EmployeeService {
   /**
    * Create new employee
    */
-  public async createEmployee(data: CreateEmployeeRequest): Promise<EmployeeDetailResponse> {
-    // Validate email uniqueness
+  public async createEmployee(
+    data: CreateEmployeeRequest,
+  ): Promise<EmployeeDetailResponse> {
     const existingEmployee = await this.employeeRepository.findByEmail(data.email);
     if (existingEmployee) {
       throw new Error("Employee with this email already exists");
     }
 
-    // Create employee
     const employeeId = await this.employeeRepository.create(data);
 
-    // Fetch and return created employee
     const record = await this.employeeRepository.findById(employeeId);
     if (!record) {
       throw new Error("Failed to create employee");
@@ -93,13 +93,11 @@ export class EmployeeService {
     id: number,
     data: UpdateEmployeeRequest,
   ): Promise<EmployeeDetailResponse> {
-    // Check if employee exists
     const employee = await this.employeeRepository.findById(id);
     if (!employee) {
       throw new Error("Employee not found");
     }
 
-    // If email is being updated, check uniqueness
     if (data.email) {
       const existingEmployee = await this.employeeRepository.findByEmail(data.email);
       if (existingEmployee && existingEmployee.id !== id) {
@@ -107,13 +105,11 @@ export class EmployeeService {
       }
     }
 
-    // Update employee
     const updated = await this.employeeRepository.update(id, data);
     if (!updated) {
       throw new Error("Failed to update employee");
     }
 
-    // Fetch and return updated employee
     const record = await this.employeeRepository.findById(id);
     if (!record) {
       throw new Error("Failed to fetch updated employee");
@@ -156,16 +152,10 @@ export class EmployeeService {
     };
   }
 
-  /**
-   * Get active employees count
-   */
   public async getActiveEmployeesCount(): Promise<number> {
     return this.employeeRepository.count(undefined, "active");
   }
 
-  /**
-   * Check if email exists
-   */
   public async emailExists(email: string, excludeId?: number): Promise<boolean> {
     const employee = await this.employeeRepository.findByEmail(email);
     if (!employee) return false;
@@ -173,3 +163,4 @@ export class EmployeeService {
     return true;
   }
 }
+

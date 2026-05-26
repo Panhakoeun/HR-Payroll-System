@@ -3,7 +3,7 @@
  * Defines all dashboard-related endpoints
  */
 
-import { Router, Request, Response, NextFunction } from "express";
+import { Router } from "express";
 import { DashboardController } from "../controllers/DashboardConttroller";
 import { AuthMiddleware } from "../middlewares/AuthMiddleware";
 
@@ -23,10 +23,9 @@ export class DashboardRoutes {
      */
     this.router.get(
       "/admin",
-      (req: Request, res: Response, next: NextFunction) =>
-        AuthMiddleware.verifyToken(req, res, next),
-      (req: Request, res: Response) =>
-        this.dashboardController.getAdminDashboard(req, res),
+      AuthMiddleware.verifyToken,
+      AuthMiddleware.requireRole("admin"),
+      this.dashboardController.getAdminDashboard.bind(this.dashboardController),
     );
 
     /**
@@ -36,10 +35,8 @@ export class DashboardRoutes {
      */
     this.router.get(
       "/staff",
-      (req: Request, res: Response, next: NextFunction) =>
-        AuthMiddleware.verifyToken(req, res, next),
-      (req: Request, res: Response) =>
-        this.dashboardController.getStaffDashboard(req, res),
+      AuthMiddleware.verifyToken,
+      this.dashboardController.getStaffDashboard.bind(this.dashboardController),
     );
 
     /**
@@ -49,10 +46,8 @@ export class DashboardRoutes {
      */
     this.router.get(
       "/summary",
-      (req: Request, res: Response, next: NextFunction) =>
-        AuthMiddleware.verifyToken(req, res, next),
-      (req: Request, res: Response) =>
-        this.dashboardController.getSummary(req, res),
+      AuthMiddleware.verifyToken,
+      this.dashboardController.getSummary.bind(this.dashboardController),
     );
   }
 }

@@ -4,8 +4,8 @@
  */
 
 import { Request, Response } from "express";
-import { EmployeeService } from "../services/employeeService";
-import { CreateEmployeeRequest, UpdateEmployeeRequest } from "../models/employee";
+import { EmployeeService } from "../services/EmployeeService";
+import { CreateEmployeeRequest, UpdateEmployeeRequest } from "../models/Employee";
 import { HttpResponse } from "../utils/HttpResponse";
 
 export class EmployeeController {
@@ -79,8 +79,13 @@ export class EmployeeController {
     try {
       const data = req.body as CreateEmployeeRequest;
 
-      // Validate required fields
-      if (!data.first_name || !data.last_name || !data.email || !data.position || !data.department) {
+      if (
+        !data.first_name ||
+        !data.last_name ||
+        !data.email ||
+        !data.position ||
+        !data.department
+      ) {
         HttpResponse.error(res, 400, "Missing required fields");
         return;
       }
@@ -95,7 +100,6 @@ export class EmployeeController {
         return;
       }
 
-      // Check email validity
       if (!this.isValidEmail(data.email)) {
         HttpResponse.error(res, 400, "Invalid email format");
         return;
@@ -128,13 +132,11 @@ export class EmployeeController {
 
       const data = req.body as UpdateEmployeeRequest;
 
-      // Validate email if provided
       if (data.email && !this.isValidEmail(data.email)) {
         HttpResponse.error(res, 400, "Invalid email format");
         return;
       }
 
-      // Validate salary if provided
       if (data.salary !== undefined && data.salary <= 0) {
         HttpResponse.error(res, 400, "Invalid salary");
         return;
@@ -196,7 +198,11 @@ export class EmployeeController {
         return;
       }
 
-      const result = await this.employeeService.getEmployeesByDepartment(department, limit, offset);
+      const result = await this.employeeService.getEmployeesByDepartment(
+        department,
+        limit,
+        offset,
+      );
 
       res.json({
         employees: result.employees,
@@ -227,11 +233,9 @@ export class EmployeeController {
     }
   }
 
-  /**
-   * Validate email format
-   */
   private isValidEmail(email: string): boolean {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   }
 }
+

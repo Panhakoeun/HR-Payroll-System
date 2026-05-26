@@ -156,3 +156,4 @@ export class Employee {
     return this.record.status === "active";
   }
 }
+

@@ -3,13 +3,15 @@
  * Input validation rules for Employee operations
  */
 
-import { CreateEmployeeRequest, UpdateEmployeeRequest } from "../models/employee";
+import { CreateEmployeeRequest, UpdateEmployeeRequest } from "../models/Employee";
 
 export class EmployeeValidation {
   /**
    * Validate create employee request
    */
-  public static validateCreateEmployee(body: Partial<CreateEmployeeRequest>): string | null {
+  public static validateCreateEmployee(
+    body: Partial<CreateEmployeeRequest>,
+  ): string | null {
     if (!body.first_name || !body.first_name.trim()) {
       return "First name is required";
     }
@@ -42,7 +44,10 @@ export class EmployeeValidation {
       return "Joining date is required";
     }
 
-    if (body.employment_type && !this.isValidEmploymentType(body.employment_type)) {
+    if (
+      body.employment_type &&
+      !this.isValidEmploymentType(body.employment_type)
+    ) {
       return "Invalid employment type";
     }
 
@@ -52,7 +57,9 @@ export class EmployeeValidation {
   /**
    * Validate update employee request
    */
-  public static validateUpdateEmployee(body: Partial<UpdateEmployeeRequest>): string | null {
+  public static validateUpdateEmployee(
+    body: Partial<UpdateEmployeeRequest>,
+  ): string | null {
     if (body.first_name !== undefined && !body.first_name.trim()) {
       return "First name cannot be empty";
     }
@@ -81,7 +88,10 @@ export class EmployeeValidation {
       return "Salary must be greater than 0";
     }
 
-    if (body.employment_type && !this.isValidEmploymentType(body.employment_type)) {
+    if (
+      body.employment_type &&
+      !this.isValidEmploymentType(body.employment_type)
+    ) {
       return "Invalid employment type";
     }
 

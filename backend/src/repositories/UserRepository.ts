@@ -43,3 +43,4 @@ export class UserRepository {
     return rows as PublicUser[];
   }
 }
+

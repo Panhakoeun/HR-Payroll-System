@@ -9,7 +9,7 @@ import {
   EmployeeRecord,
   CreateEmployeeRequest,
   UpdateEmployeeRequest,
-} from "../models/employee";
+} from "../models/Employee";
 
 export class EmployeeRepository {
   private readonly db = Database.getInstance();
