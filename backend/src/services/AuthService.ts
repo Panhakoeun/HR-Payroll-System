@@ -41,4 +41,8 @@ export class AuthService {
   public async emailExists(email: string): Promise<boolean> {
     return Boolean(await this.userRepository.findByEmail(email));
   }
+
+  public async listUsers(): Promise<PublicUser[]> {
+    return this.userRepository.findAll();
+  }
 }

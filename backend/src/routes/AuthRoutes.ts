@@ -17,6 +17,12 @@ export class AuthRoutes {
       AuthMiddleware.verifyToken,
       this.authController.getMe.bind(this.authController),
     );
+    this.router.get(
+      "/users",
+      AuthMiddleware.verifyToken,
+      AuthMiddleware.requireRole("admin"),
+      this.authController.getUsers.bind(this.authController),
+    );
     this.router.post(
       "/users",
       AuthMiddleware.verifyToken,
