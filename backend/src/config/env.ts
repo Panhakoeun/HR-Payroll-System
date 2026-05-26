@@ -1,6 +1,9 @@
 import dotenv from "dotenv";
+import path from "path";
 
-dotenv.config();
+dotenv.config({
+  path: path.resolve(process.cwd(), "backend", ".env"),
+});
 
 export class EnvConfig {
   public readonly port = Number(process.env.PORT || 3000);
@@ -8,6 +11,7 @@ export class EnvConfig {
   public readonly jwtExpiresIn = process.env.JWT_EXPIRES_IN || "24h";
   public readonly db = {
     host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT) || 3306,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,

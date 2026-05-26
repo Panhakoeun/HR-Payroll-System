@@ -35,4 +35,12 @@ export class UserRepository {
       role: data.role,
     };
   }
+
+  public async findAll(): Promise<PublicUser[]> {
+    const rows = await this.db.query<RowDataPacket[]>(
+      "SELECT id, name, email, role, created_at FROM users",
+    );
+    return rows as PublicUser[];
+  }
 }
+

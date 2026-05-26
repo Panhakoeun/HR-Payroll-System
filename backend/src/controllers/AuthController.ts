@@ -57,4 +57,14 @@ export class AuthController {
       HttpResponse.error(res, 500, "Server error");
     }
   }
+
+  public async getUsers(req: Request, res: Response): Promise<void> {
+    try {
+      const users = await this.authService.listUsers();
+      res.json({ users });
+    } catch (err) {
+      console.error("Get users error:", err);
+      HttpResponse.error(res, 500, "Server error");
+    }
+  }
 }

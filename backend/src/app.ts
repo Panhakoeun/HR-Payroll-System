@@ -3,7 +3,7 @@ import cors from "cors";
 import path from "path";
 import { envConfig } from "./config/env";
 import { AuthRoutes } from "./routes/AuthRoutes";
-import { EmployeeRoutes } from "./routes/employeeRoutes";
+import { EmployeeRoutes } from "./routes/EmployeeRoutes";
 import { AttendanceRoutes } from "./routes/atendanceRoutes";
 import { PayrollRoutes } from "./routes/payrollroutes";
 import { PayslipRoutes } from "./routes/payslipRoutes";
@@ -80,6 +80,7 @@ class App {
           attendance: "/api/attendance",
           payroll: "/api/payroll",
           payslips: "/api/payslips",
+          dashboard: "/api/dashboard",
         },
         documentation: "See README.md for detailed API documentation",
       });
@@ -113,6 +114,26 @@ class App {
   }
 
   private configureFrontendFallback(): void {
+<<<<<<< HEAD
+=======
+    // Friendly routes for key pages
+    this.app.get("/admin/dashboard.html", (_req: Request, res: Response) => {
+      res.sendFile(path.join(__dirname, "../frontend/admin/dashboard.html"));
+    });
+    this.app.get("/admin/employees.html", (_req: Request, res: Response) => {
+      res.sendFile(path.join(__dirname, "../frontend/admin/employees.html"));
+    });
+    this.app.get("/admin/payroll.html", (_req: Request, res: Response) => {
+      res.sendFile(path.join(__dirname, "../frontend/admin/payroll.html"));
+    });
+    this.app.get("/staff/dashboard.html", (_req: Request, res: Response) => {
+      res.sendFile(path.join(__dirname, "../frontend/staff/dashboard.html"));
+    });
+    this.app.get("/staff/payslip.html", (_req: Request, res: Response) => {
+      res.sendFile(path.join(__dirname, "../frontend/staff/payslip.html"));
+    });
+
+>>>>>>> develop
     // Serve frontend for all non-API routes
     this.app.get("*", (_req: Request, res: Response) => {
       res.sendFile(path.join(__dirname, "../frontend/login.html"));

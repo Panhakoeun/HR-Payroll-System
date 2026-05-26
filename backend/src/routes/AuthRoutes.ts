@@ -11,11 +11,20 @@ export class AuthRoutes {
   }
 
   private initializeRoutes(): void {
-    this.router.post("/login", this.authController.login.bind(this.authController));
+    this.router.post(
+      "/login",
+      this.authController.login.bind(this.authController),
+    );
     this.router.get(
       "/me",
       AuthMiddleware.verifyToken,
       this.authController.getMe.bind(this.authController),
+    );
+    this.router.get(
+      "/users",
+      AuthMiddleware.verifyToken,
+      AuthMiddleware.requireRole("admin"),
+      this.authController.getUsers.bind(this.authController),
     );
     this.router.post(
       "/users",

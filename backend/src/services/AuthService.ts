@@ -11,7 +11,9 @@ export class AuthService {
   ) {}
 
   public async login(data: LoginRequest): Promise<LoginResponse | null> {
-    const userRecord = await this.userRepository.findByEmail(data.email);
+    const userRecord = await this.userRepository.findByEmail(
+      data.email.trim().toLowerCase(),
+    );
     if (!userRecord) {
       return null;
     }
@@ -40,5 +42,9 @@ export class AuthService {
 
   public async emailExists(email: string): Promise<boolean> {
     return Boolean(await this.userRepository.findByEmail(email));
+  }
+
+  public async listUsers(): Promise<PublicUser[]> {
+    return this.userRepository.findAll();
   }
 }
