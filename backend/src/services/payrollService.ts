@@ -6,7 +6,7 @@
 
 import { Database } from "../database/Database";
 import { RowDataPacket } from "mysql2";
-import { PayrollRepository } from "../repositories/payrooRepositories";
+import { PayrollRepository } from "../repositories/payrollRepositories";
 import { EmployeeRepository } from "../repositories/employeeRepositories";
 import { PayrollSettingsRepository } from "../repositories/payrollSettingsRepositories";
 import {

@@ -4,7 +4,7 @@
  */
 
 import { Router } from "express";
-import { DashboardController } from "../controllers/DashboardConttroller";
+import { DashboardController } from "../controllers/DashboardController";
 import { AuthMiddleware } from "../middlewares/AuthMiddleware";
 
 export class DashboardRoutes {

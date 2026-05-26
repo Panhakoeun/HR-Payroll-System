@@ -4,7 +4,7 @@
  */
 
 import { PayslipRepository } from "../repositories/payslipRepositories";
-import { PayrollRepository } from "../repositories/payrooRepositories";
+import { PayrollRepository } from "../repositories/payrollRepositories";
 import { EmployeeRepository } from "../repositories/employeeRepositories";
 import {
   CreatePayslipRequest,

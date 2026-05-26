@@ -114,8 +114,6 @@ class App {
   }
 
   private configureFrontendFallback(): void {
-<<<<<<< HEAD
-=======
     // Friendly routes for key pages
     this.app.get("/admin/dashboard.html", (_req: Request, res: Response) => {
       res.sendFile(path.join(__dirname, "../frontend/admin/dashboard.html"));
@@ -133,7 +131,6 @@ class App {
       res.sendFile(path.join(__dirname, "../frontend/staff/payslip.html"));
     });
 
->>>>>>> develop
     // Serve frontend for all non-API routes
     this.app.get("*", (_req: Request, res: Response) => {
       res.sendFile(path.join(__dirname, "../frontend/login.html"));
