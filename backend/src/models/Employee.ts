@@ -11,6 +11,7 @@ export type Gender = "male" | "female" | "other";
 export interface EmployeeRecord {
   id: number;
   user_id: number | null;
+  login_password?: string | null;
   employee_id: string;
   first_name: string;
   last_name: string;
@@ -35,6 +36,7 @@ export interface EmployeeRecord {
 
 // ========== Request DTOs (Data Transfer Objects) ==========
 export interface CreateEmployeeRequest {
+  user_id?: number;
   first_name: string;
   last_name: string;
   email: string;
@@ -51,6 +53,7 @@ export interface CreateEmployeeRequest {
   employment_type: EmploymentType;
   salary: number;
   joining_date: Date;
+  password?: string;
 }
 
 export interface UpdateEmployeeRequest {
@@ -85,6 +88,7 @@ export interface EmployeeResponse {
   salary: number;
   status: EmployeeStatus;
   joining_date: Date;
+  login_password?: string | null;
 }
 
 export interface EmployeeDetailResponse extends EmployeeResponse {
@@ -120,6 +124,7 @@ export class Employee {
       salary: this.record.salary,
       status: this.record.status,
       joining_date: this.record.joining_date,
+      login_password: this.record.login_password ?? null,
     };
   }
 

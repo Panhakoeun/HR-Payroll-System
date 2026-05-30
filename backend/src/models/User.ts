@@ -16,6 +16,13 @@ export interface PublicUser {
   role: UserRole;
 }
 
+export interface CreateStaffLoginRequest {
+  name: string;
+  email: string;
+  password: string;
+  loginPassword: string;
+}
+
 export class User {
   constructor(private readonly record: UserRecord) {}
 

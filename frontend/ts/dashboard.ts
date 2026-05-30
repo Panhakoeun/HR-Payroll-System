@@ -4,8 +4,6 @@
  * Requirements: US-22 (Admin Dashboard) and US-23 (Staff Dashboard)
  */
 
-export {};
-
 type DashboardRole = "admin" | "staff";
 
 interface DashboardUser {
@@ -265,7 +263,7 @@ class DashboardPage {
   }
 
   private getStoredUser(): DashboardUser | null {
-    const userStr = localStorage.getItem("user");
+    const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
     if (!userStr) return null;
     try {
       return JSON.parse(userStr) as DashboardUser;
@@ -275,12 +273,14 @@ class DashboardPage {
   }
 
   private getStoredToken(): string | null {
-    return localStorage.getItem("token");
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
   }
 
   private logout(): void {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
     window.location.href = "/login.html";
   }
 

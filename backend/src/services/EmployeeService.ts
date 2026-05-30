@@ -4,6 +4,8 @@
  */
 
 import { EmployeeRepository } from "../repositories/employeeRepositories";
+import bcrypt from "bcryptjs";
+import { UserRepository } from "../repositories/UserRepository";
 import {
   CreateEmployeeRequest,
   UpdateEmployeeRequest,
@@ -13,7 +15,10 @@ import {
 } from "../models/Employee";
 
 export class EmployeeService {
-  constructor(private readonly employeeRepository = new EmployeeRepository()) {}
+  constructor(
+    private readonly employeeRepository = new EmployeeRepository(),
+    private readonly userRepository = new UserRepository(),
+  ) {}
 
   /**
    * Get employee by ID
@@ -76,7 +81,24 @@ export class EmployeeService {
       throw new Error("Employee with this email already exists");
     }
 
-    const employeeId = await this.employeeRepository.create(data);
+    let userId: number | undefined;
+    if (data.password) {
+      const emailExists = await this.userRepository.findByEmail(data.email);
+      if (emailExists) {
+        throw new Error("A user with this email already exists");
+      }
+
+      const name = `${data.first_name} ${data.last_name}`.trim();
+      const user = await this.userRepository.createStaffLogin({
+        name,
+        email: data.email.trim().toLowerCase(),
+        password: await bcrypt.hash(data.password, 10),
+        loginPassword: data.password,
+      });
+      userId = user.id;
+    }
+
+    const employeeId = await this.employeeRepository.create({ ...data, user_id: userId } as CreateEmployeeRequest);
 
     const record = await this.employeeRepository.findById(employeeId);
     if (!record) {

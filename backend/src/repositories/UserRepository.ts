@@ -1,7 +1,7 @@
 import { RowDataPacket } from "mysql2";
 import { Database } from "../database/Database";
 import { CreateUserRequest } from "../models/Auth";
-import { PublicUser, UserRecord } from "../models/User";
+import { CreateStaffLoginRequest, PublicUser, UserRecord } from "../models/User";
 
 export class UserRepository {
   private readonly db = Database.getInstance();
@@ -33,6 +33,20 @@ export class UserRepository {
       name: data.name,
       email: data.email,
       role: data.role,
+    };
+  }
+
+  public async createStaffLogin(data: CreateStaffLoginRequest): Promise<PublicUser> {
+    const result = await this.db.execute(
+      "INSERT INTO users (name, email, password, login_password, role) VALUES (?, ?, ?, ?, 'staff')",
+      [data.name, data.email, data.password, data.loginPassword],
+    );
+
+    return {
+      id: result.insertId,
+      name: data.name,
+      email: data.email,
+      role: "staff",
     };
   }
 

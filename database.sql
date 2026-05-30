@@ -166,38 +166,38 @@ ON DUPLICATE KEY UPDATE
 
 -- Sample Leave Requests (for testing)
 INSERT INTO leave_requests (employee_id, start_date, end_date, leave_type, reason, status, approved_by) VALUES
-  (2, '2026-06-01', '2026-06-05', 'annual', 'Summer vacation', 'pending', NULL),
-  (3, '2026-05-27', '2026-05-28', 'sick', 'Medical appointment', 'approved', 1),
-  (2, '2026-05-20', '2026-05-22', 'annual', 'Family visit', 'approved', 1)
+  (1, '2026-06-01', '2026-06-05', 'annual', 'Summer vacation', 'pending', NULL),
+  (2, '2026-05-27', '2026-05-28', 'sick', 'Medical appointment', 'approved', 1),
+  (1, '2026-05-20', '2026-05-22', 'annual', 'Family visit', 'approved', 1)
 ON DUPLICATE KEY UPDATE
   status = VALUES(status);
 
 -- Sample Attendance Records (May 2026)
 INSERT INTO attendance (employee_id, attendance_date, check_in_time, check_out_time, status, remarks) VALUES
-  (2, '2026-05-20', '09:00:00', '17:30:00', 'present', NULL),
-  (2, '2026-05-21', '09:15:00', '17:45:00', 'late', 'Traffic delay'),
-  (2, '2026-05-22', NULL, NULL, 'absent', 'Leave'),
-  (2, '2026-05-23', '09:00:00', '17:30:00', 'present', NULL),
-  (2, '2026-05-24', '09:00:00', '17:30:00', 'present', NULL),
-  (3, '2026-05-20', '08:45:00', '17:30:00', 'present', NULL),
-  (3, '2026-05-21', '09:30:00', '17:45:00', 'late', 'Doctor appointment'),
-  (3, '2026-05-22', '08:45:00', '17:30:00', 'present', NULL),
-  (3, '2026-05-23', NULL, NULL, 'absent', 'Sick leave'),
-  (3, '2026-05-24', '09:00:00', '17:30:00', 'present', NULL)
+  (1, '2026-05-20', '09:00:00', '17:30:00', 'present', NULL),
+  (1, '2026-05-21', '09:15:00', '17:45:00', 'late', 'Traffic delay'),
+  (1, '2026-05-22', NULL, NULL, 'absent', 'Leave'),
+  (1, '2026-05-23', '09:00:00', '17:30:00', 'present', NULL),
+  (1, '2026-05-24', '09:00:00', '17:30:00', 'present', NULL),
+  (2, '2026-05-20', '08:45:00', '17:30:00', 'present', NULL),
+  (2, '2026-05-21', '09:30:00', '17:45:00', 'late', 'Doctor appointment'),
+  (2, '2026-05-22', '08:45:00', '17:30:00', 'present', NULL),
+  (2, '2026-05-23', NULL, NULL, 'absent', 'Sick leave'),
+  (2, '2026-05-24', '09:00:00', '17:30:00', 'present', NULL)
 ON DUPLICATE KEY UPDATE
   status = VALUES(status);
 
 -- Sample Payroll Data (May 2026)
 INSERT INTO payroll (employee_id, pay_period_start, pay_period_end, basic_salary, allowances, deductions, gross_salary, net_salary, status, payment_date) VALUES
-  (2, '2026-05-01', '2026-05-31', 55000.00, 5500.00, 1000.00, 60500.00, 59500.00, 'paid', '2026-05-31'),
-  (3, '2026-05-01', '2026-05-31', 52000.00, 5200.00, 1500.00, 57200.00, 55700.00, 'paid', '2026-05-31')
+  (1, '2026-05-01', '2026-05-31', 60000.00, 6000.00, 1000.00, 66000.00, 65000.00, 'paid', '2026-05-31'),
+  (2, '2026-05-01', '2026-05-31', 55000.00, 5500.00, 1500.00, 60500.00, 59000.00, 'paid', '2026-05-31')
 ON DUPLICATE KEY UPDATE
   net_salary = VALUES(net_salary);
 
 -- Sample Payslips (May 2026)
 INSERT INTO payslips (payroll_id, employee_id, pay_period_start, pay_period_end, basic_salary, allowances, deductions, gross_salary, net_salary, status) VALUES
-  (1, 2, '2026-05-01', '2026-05-31', 55000.00, 5500.00, 1000.00, 60500.00, 59500.00, 'generated'),
-  (2, 3, '2026-05-01', '2026-05-31', 52000.00, 5200.00, 1500.00, 57200.00, 55700.00, 'sent')
+  (1, 1, '2026-05-01', '2026-05-31', 60000.00, 6000.00, 1000.00, 66000.00, 65000.00, 'generated'),
+  (2, 2, '2026-05-01', '2026-05-31', 55000.00, 5500.00, 1500.00, 60500.00, 59000.00, 'sent')
 ON DUPLICATE KEY UPDATE
   status = VALUES(status);
 

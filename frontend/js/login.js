@@ -90,7 +90,7 @@ class LoginPage {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password }),
             });
-            const data = (await response.json());
+            const data = await this.readJson(response);
             if (!response.ok) {
                 this.showError(data.message || "Invalid email or password.");
                 return;
@@ -115,6 +115,18 @@ class LoginPage {
         }
         else {
             localStorage.removeItem("rememberedEmail");
+        }
+    }
+    async readJson(response) {
+        const text = await response.text();
+        if (!text) {
+            return {};
+        }
+        try {
+            return JSON.parse(text);
+        }
+        catch {
+            return { message: "Server returned an unexpected response." };
         }
     }
     setLoading(state) {

@@ -1,12 +1,10 @@
-export {};
-
-type UserRole = "admin" | "staff";
+type PayslipUserRole = "admin" | "staff";
 
 interface StoredUser {
   id: number;
   name: string;
   email: string;
-  role: UserRole;
+  role: PayslipUserRole;
 }
 
 interface PayslipResponse {
@@ -163,7 +161,7 @@ class StaffPayslipPage {
   }
 
   private getStoredUser(): StoredUser | null {
-    const s = localStorage.getItem("user");
+    const s = localStorage.getItem("user") || sessionStorage.getItem("user");
     if (!s) return null;
     try {
       return JSON.parse(s) as StoredUser;
@@ -173,12 +171,14 @@ class StaffPayslipPage {
   }
 
   private getStoredToken(): string | null {
-    return localStorage.getItem("token");
+    return localStorage.getItem("token") || sessionStorage.getItem("token");
   }
 
   private logout(): void {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
     window.location.href = "/login.html";
   }
 

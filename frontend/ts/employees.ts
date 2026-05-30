@@ -18,13 +18,30 @@ interface Employee {
   status: EmployeeStatus;
 }
 
+interface ApiEmployee {
+  id: number;
+  employee_id?: string;
+  first_name?: string;
+  last_name?: string;
+  name?: string;
+  email: string;
+  login_password?: string | null;
+  loginPassword?: string | null;
+  department: string;
+  position: string;
+  joining_date?: string | null;
+  startDate?: string | null;
+  salary: number | string;
+  status: EmployeeStatus | "on-leave";
+}
+
 interface EmployeeListResponse {
-  employees?: Employee[];
+  employees?: ApiEmployee[];
   message?: string;
 }
 
 interface EmployeeResponse {
-  employee?: Employee;
+  employee?: ApiEmployee;
   message?: string;
 }
 
@@ -103,7 +120,7 @@ class EmployeesPage {
         return;
       }
 
-      this.employees = data.employees || [];
+      this.employees = (data.employees || []).map((employee) => this.normalizeEmployee(employee));
       this.renderEmployees();
     } catch {
       this.renderError("Unable to connect to server.");
@@ -156,12 +173,14 @@ class EmployeesPage {
         return;
       }
 
+      const savedEmployee = this.normalizeEmployee(data.employee);
+
       if (isEditing) {
         this.employees = this.employees.map((employee) =>
-          employee.id === data.employee?.id ? data.employee : employee,
+          employee.id === savedEmployee.id ? savedEmployee : employee,
         );
       } else {
-        this.employees.unshift(data.employee);
+        this.employees.unshift(savedEmployee);
       }
 
       this.renderEmployees();
@@ -226,8 +245,9 @@ class EmployeesPage {
         return;
       }
 
+      const savedEmployee = this.normalizeEmployee(data.employee);
       this.employees = this.employees.map((item) =>
-        item.id === data.employee?.id ? data.employee : item,
+        item.id === savedEmployee.id ? savedEmployee : item,
       );
       this.renderEmployees();
     } catch {
@@ -371,26 +391,63 @@ class EmployeesPage {
   }
 
   private getFormPayload(): {
+    first_name: string;
+    last_name: string;
     name: string;
     email: string;
     password: string;
     department: string;
     position: string;
-    salary: string;
+    employment_type: "full-time";
+    salary: number;
+    joining_date: string;
     startDate: string;
     status: EmployeeStatus;
   } {
     const formData = new FormData(this.form);
+    const fullName = String(formData.get("name") || "").trim();
+    const [firstName, ...lastNameParts] = fullName.split(/\s+/).filter(Boolean);
+    const startDate = String(formData.get("startDate") || "").trim();
+
     return {
-      name: String(formData.get("name") || "").trim(),
+      first_name: firstName || fullName,
+      last_name: lastNameParts.join(" ") || "-",
+      name: fullName,
       email: String(formData.get("email") || "").trim().toLowerCase(),
       password: String(formData.get("password") || ""),
       department: String(formData.get("department") || "Operations").trim(),
       position: String(formData.get("position") || "Staff").trim() || "Staff",
-      salary: String(formData.get("salary") || "0").trim() || "0",
-      startDate: String(formData.get("startDate") || ""),
+      employment_type: "full-time",
+      salary: this.parseMoney(String(formData.get("salary") || "0")),
+      joining_date: startDate || new Date().toISOString().slice(0, 10),
+      startDate,
       status: String(formData.get("status") || "active") as EmployeeStatus,
     };
+  }
+
+  private normalizeEmployee(employee: ApiEmployee): Employee {
+    const firstName = employee.first_name || "";
+    const lastName = employee.last_name || "";
+    const name = employee.name || `${firstName} ${lastName}`.trim() || employee.email;
+    const rawStatus = employee.status === "inactive" ? "inactive" : "active";
+
+    return {
+      id: employee.id,
+      name,
+      email: employee.email,
+      loginPassword: employee.loginPassword ?? employee.login_password ?? null,
+      department: employee.department,
+      position: employee.position,
+      startDate: employee.startDate ?? employee.joining_date ?? null,
+      salary: Number(employee.salary || 0),
+      status: rawStatus,
+    };
+  }
+
+  private parseMoney(value: string): number {
+    const normalized = value.replace(/[$,\s]/g, "");
+    const amount = Number(normalized);
+    return Number.isFinite(amount) ? amount : 0;
   }
 
   private findEmployee(id: string | undefined): Employee | null {

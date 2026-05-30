@@ -19,11 +19,11 @@ export class EmployeeRepository {
    */
   public async findById(id: number): Promise<EmployeeRecord | null> {
     const rows = await this.db.query<RowDataPacket[]>(
-      `SELECT id, user_id, employee_id, first_name, last_name, email, phone,
+      `SELECT e.id, e.user_id, u.login_password, e.employee_id, e.first_name, e.last_name, e.email, e.phone,
               date_of_birth, gender, address, city, state, postal_code, country,
               position, department, employment_type, salary, joining_date, status,
-              created_at, updated_at
-       FROM employees WHERE id = ?`,
+              e.created_at, e.updated_at
+       FROM employees e LEFT JOIN users u ON u.id = e.user_id WHERE e.id = ?`,
       [id],
     );
     return rows.length > 0 ? (rows[0] as EmployeeRecord) : null;
@@ -34,11 +34,11 @@ export class EmployeeRepository {
    */
   public async findByUserId(userId: number): Promise<EmployeeRecord | null> {
     const rows = await this.db.query<RowDataPacket[]>(
-      `SELECT id, user_id, employee_id, first_name, last_name, email, phone,
+      `SELECT e.id, e.user_id, u.login_password, e.employee_id, e.first_name, e.last_name, e.email, e.phone,
               date_of_birth, gender, address, city, state, postal_code, country,
               position, department, employment_type, salary, joining_date, status,
-              created_at, updated_at
-       FROM employees WHERE user_id = ?`,
+              e.created_at, e.updated_at
+       FROM employees e LEFT JOIN users u ON u.id = e.user_id WHERE e.user_id = ?`,
       [userId],
     );
     return rows.length > 0 ? (rows[0] as EmployeeRecord) : null;
@@ -49,11 +49,11 @@ export class EmployeeRepository {
    */
   public async findByEmployeeId(employeeId: string): Promise<EmployeeRecord | null> {
     const rows = await this.db.query<RowDataPacket[]>(
-      `SELECT id, user_id, employee_id, first_name, last_name, email, phone,
+      `SELECT e.id, e.user_id, u.login_password, e.employee_id, e.first_name, e.last_name, e.email, e.phone,
               date_of_birth, gender, address, city, state, postal_code, country,
               position, department, employment_type, salary, joining_date, status,
-              created_at, updated_at
-       FROM employees WHERE employee_id = ?`,
+              e.created_at, e.updated_at
+       FROM employees e LEFT JOIN users u ON u.id = e.user_id WHERE e.employee_id = ?`,
       [employeeId],
     );
     return rows.length > 0 ? (rows[0] as EmployeeRecord) : null;
@@ -64,11 +64,11 @@ export class EmployeeRepository {
    */
   public async findByEmail(email: string): Promise<EmployeeRecord | null> {
     const rows = await this.db.query<RowDataPacket[]>(
-      `SELECT id, user_id, employee_id, first_name, last_name, email, phone,
+      `SELECT e.id, e.user_id, u.login_password, e.employee_id, e.first_name, e.last_name, e.email, e.phone,
               date_of_birth, gender, address, city, state, postal_code, country,
               position, department, employment_type, salary, joining_date, status,
-              created_at, updated_at
-       FROM employees WHERE email = ?`,
+              e.created_at, e.updated_at
+       FROM employees e LEFT JOIN users u ON u.id = e.user_id WHERE e.email = ?`,
       [email],
     );
     return rows.length > 0 ? (rows[0] as EmployeeRecord) : null;
@@ -83,24 +83,24 @@ export class EmployeeRepository {
     limit: number = 50,
     offset: number = 0,
   ): Promise<EmployeeRecord[]> {
-    let query = `SELECT id, user_id, employee_id, first_name, last_name, email, phone,
+    let query = `SELECT e.id, e.user_id, u.login_password, e.employee_id, e.first_name, e.last_name, e.email, e.phone,
                         date_of_birth, gender, address, city, state, postal_code, country,
                         position, department, employment_type, salary, joining_date, status,
-                        created_at, updated_at
-                 FROM employees WHERE 1=1`;
+                        e.created_at, e.updated_at
+                 FROM employees e LEFT JOIN users u ON u.id = e.user_id WHERE 1=1`;
     const params: (string | number)[] = [];
 
     if (department) {
-      query += ` AND department = ?`;
+      query += ` AND e.department = ?`;
       params.push(department);
     }
 
     if (status) {
-      query += ` AND status = ?`;
+      query += ` AND e.status = ?`;
       params.push(status);
     }
 
-    query += ` ORDER BY joining_date DESC LIMIT ? OFFSET ?`;
+    query += ` ORDER BY e.joining_date DESC LIMIT ? OFFSET ?`;
     params.push(limit, offset);
 
     return await this.db.query<RowDataPacket[]>(query, params) as EmployeeRecord[];
@@ -131,14 +131,15 @@ export class EmployeeRepository {
    * Create new employee
    */
   public async create(data: CreateEmployeeRequest): Promise<number> {
+    const employeeId = await this.generateEmployeeId();
     const result = await this.db.execute(
       `INSERT INTO employees 
        (employee_id, first_name, last_name, email, phone, date_of_birth, gender,
         address, city, state, postal_code, country, position, department,
-        employment_type, salary, joining_date, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        employment_type, salary, joining_date, status, user_id)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        this.generateEmployeeId(),
+        employeeId,
         data.first_name,
         data.last_name,
         data.email.toLowerCase().trim(),
@@ -156,6 +157,7 @@ export class EmployeeRepository {
         data.salary,
         data.joining_date,
         "active",
+        data.user_id || null,
       ],
     );
 
