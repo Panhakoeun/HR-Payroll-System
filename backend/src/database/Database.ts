@@ -6,10 +6,28 @@ export class Database {
   private readonly pool: Pool;
 
   private constructor() {
+    const { host, user, database, port } = envConfig.db;
+    // Avoid leaking password; this is safe to log.
+    console.log("[DB] Connecting with:", {
+      host,
+      port,
+      user,
+      database,
+    });
+
+    if (!host || !user || !database) {
+      throw new Error("[DB] Missing DB configuration (DB_HOST/DB_USER/DB_NAME)");
+    }
+
+    if (port !== undefined) {
+      console.log("[DB] Using DB_PORT:" , port);
+    }
+
     this.pool = mysql.createPool({
       ...envConfig.db,
       waitForConnections: true,
       connectionLimit: 10,
+      connectTimeout: 5000,
     });
   }
 

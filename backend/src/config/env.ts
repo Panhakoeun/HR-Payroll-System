@@ -14,6 +14,7 @@ export class EnvConfig {
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : undefined,
   };
 
   public validate(): void {
@@ -23,6 +24,14 @@ export class EnvConfig {
       DB_USER: this.db.user,
       DB_NAME: this.db.database,
     };
+
+    // Optional port validation
+    if (process.env.DB_PORT !== undefined) {
+      const port = Number(process.env.DB_PORT);
+      if (!Number.isInteger(port) || port <= 0) {
+        throw new Error(`Invalid environment variable(s): DB_PORT must be a positive integer`);
+      }
+    }
 
     const missing = Object.entries(required)
       .filter(([, value]) => !value)
