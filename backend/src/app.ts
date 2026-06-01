@@ -5,7 +5,6 @@ import { envConfig } from "./config/env";
 import { AuthRoutes } from "./routes/AuthRoutes";
 import { EmployeeRoutes } from "./routes/EmployeeRoutes";
 import { AttendanceRoutes } from "./routes/atendanceRoutes";
-import { PayrollRoutes } from "./routes/payrollroutes";
 import { PayslipRoutes } from "./routes/payslipRoutes";
 import { DashboardRoutes } from "./routes/DashboardRoutes";
 import { DocumentRoutes } from "./routes/DocumentRoutes";
@@ -53,7 +52,6 @@ class App {
     const authRoutes = new AuthRoutes();
     const employeeRoutes = new EmployeeRoutes();
     const attendanceRoutes = new AttendanceRoutes();
-    const payrollRoutes = new PayrollRoutes();
     const payslipRoutes = new PayslipRoutes();
     const dashboardRoutes = new DashboardRoutes();
     const documentRoutes = new DocumentRoutes();
@@ -62,7 +60,6 @@ class App {
     this.app.use("/api/auth", authRoutes.router);
     this.app.use("/api/employees", employeeRoutes.router);
     this.app.use("/api/attendance", attendanceRoutes.router);
-    this.app.use("/api/payroll", payrollRoutes.router);
     this.app.use("/api/payslips", payslipRoutes.router);
     this.app.use("/api/dashboard", dashboardRoutes.router);
     this.app.use("/api/documents", documentRoutes.router);
