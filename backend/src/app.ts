@@ -8,6 +8,7 @@ import { AttendanceRoutes } from "./routes/atendanceRoutes";
 import { PayrollRoutes } from "./routes/payrollroutes";
 import { PayslipRoutes } from "./routes/payslipRoutes";
 import { DashboardRoutes } from "./routes/DashboardRoutes";
+import { DocumentRoutes } from "./routes/DocumentRoutes";
 
 class App {
   private readonly app: ExpressApplication;
@@ -55,6 +56,7 @@ class App {
     const payrollRoutes = new PayrollRoutes();
     const payslipRoutes = new PayslipRoutes();
     const dashboardRoutes = new DashboardRoutes();
+    const documentRoutes = new DocumentRoutes();
 
     // Register routes
     this.app.use("/api/auth", authRoutes.router);
@@ -63,6 +65,7 @@ class App {
     this.app.use("/api/payroll", payrollRoutes.router);
     this.app.use("/api/payslips", payslipRoutes.router);
     this.app.use("/api/dashboard", dashboardRoutes.router);
+    this.app.use("/api/documents", documentRoutes.router);
 
     // Health check endpoint
     this.app.get("/api/health", (_req: Request, res: Response) => {
@@ -81,6 +84,7 @@ class App {
           payroll: "/api/payroll",
           payslips: "/api/payslips",
           dashboard: "/api/dashboard",
+          documents: "/api/documents",
         },
         documentation: "See README.md for detailed API documentation",
       });

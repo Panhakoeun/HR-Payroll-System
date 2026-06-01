@@ -122,6 +122,28 @@ CREATE TABLE IF NOT EXISTS payslips (
   INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ========== Documents Table ==========
+CREATE TABLE IF NOT EXISTS documents (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  employee_id     INT NOT NULL,
+  title           VARCHAR(255) NOT NULL,
+  description     TEXT,
+  document_type   ENUM('contract', 'certificate', 'policy', 'report', 'other') DEFAULT 'other',
+  file_path       VARCHAR(500) NOT NULL,
+  file_name       VARCHAR(255) NOT NULL,
+  file_size       BIGINT NOT NULL,
+  status          ENUM('active', 'archived', 'expired') DEFAULT 'active',
+  uploaded_by     INT NOT NULL,
+  created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (employee_id) REFERENCES employees(id) ON DELETE CASCADE,
+  FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE RESTRICT,
+  INDEX idx_employee (employee_id),
+  INDEX idx_type (document_type),
+  INDEX idx_status (status),
+  INDEX idx_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- ========== Leave Requests Table ==========
 CREATE TABLE IF NOT EXISTS leave_requests (
   id            INT AUTO_INCREMENT PRIMARY KEY,
